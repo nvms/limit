@@ -1,0 +1,17 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: limit-redis
+    platform: linux/amd64
+    ports:
+      - "6379:6379"
+    volumes:
+      - limit-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  limit-redis-data:
