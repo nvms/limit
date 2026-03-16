@@ -70,11 +70,15 @@ export function slidingWindow(options) {
   const window = ms(options.window)
   const prefix = options.prefix ?? 'limit:sw:'
 
+  if (!Number.isInteger(max) || max <= 0) throw new Error('max must be a positive integer')
+  if (!Number.isFinite(window) || window <= 0) throw new Error('window must be a positive duration')
+
   const redis = createClient(options.redis ?? {})
   redis.on('error', () => {})
   const readyPromise = redis.connect()
 
   async function hit(key, cost = 1) {
+    if (!Number.isInteger(cost) || cost < 1) throw new Error('cost must be a positive integer')
     await readyPromise
     const ids = Array.from({ length: cost }, () => `${Date.now()}-${randomUUID()}`)
     const result = await redis.eval(HIT_SCRIPT, {

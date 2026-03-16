@@ -91,6 +91,12 @@ export function tokenBucket(options) {
   const { capacity, refillRate } = options
   const refillInterval = ms(options.refillInterval)
   const prefix = options.prefix ?? 'limit:tb:'
+
+  if (!Number.isFinite(capacity) || capacity <= 0) throw new Error('capacity must be a positive number')
+  if (!Number.isFinite(refillRate) || refillRate <= 0) throw new Error('refillRate must be a positive number')
+  if (!Number.isFinite(refillInterval) || refillInterval <= 0)
+    throw new Error('refillInterval must be a positive duration')
+
   const ttl = Math.ceil(capacity / refillRate) * refillInterval * 2
 
   const redis = createClient(options.redis ?? {})

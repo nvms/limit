@@ -167,4 +167,11 @@ describe('leakyBucket', () => {
     const bAllowed = await limiter.drip('b')
     expect(bAllowed.allowed).toBe(true)
   })
+
+  it('should reject invalid options', () => {
+    expect(() => leakyBucket({ capacity: 0, drainRate: 1, drainInterval: '1s' })).toThrow()
+    expect(() => leakyBucket({ capacity: 5, drainRate: 0, drainInterval: '1s' })).toThrow()
+    expect(() => leakyBucket({ capacity: 5, drainRate: 1, drainInterval: 0 })).toThrow()
+    expect(() => leakyBucket({ capacity: -1, drainRate: 1, drainInterval: '1s' })).toThrow()
+  })
 })

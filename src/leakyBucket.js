@@ -91,6 +91,12 @@ export function leakyBucket(options) {
   const { capacity, drainRate } = options
   const drainInterval = ms(options.drainInterval)
   const prefix = options.prefix ?? 'limit:lb:'
+
+  if (!Number.isFinite(capacity) || capacity <= 0) throw new Error('capacity must be a positive number')
+  if (!Number.isFinite(drainRate) || drainRate <= 0) throw new Error('drainRate must be a positive number')
+  if (!Number.isFinite(drainInterval) || drainInterval <= 0)
+    throw new Error('drainInterval must be a positive duration')
+
   const ttl = Math.ceil(capacity / drainRate) * drainInterval * 2
 
   const redis = createClient(options.redis ?? {})
