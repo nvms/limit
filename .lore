@@ -1,0 +1,7 @@
+-- pitfalls --
+
+retryAfter is -1 when cost exceeds capacity (request can never succeed,
+regardless of wait time). this is consistent across all three algorithms.
+if your retry logic does setTimeout(fn, result.retryAfter), the negative
+value clamps to 0 and you get a hot retry loop. check for -1 explicitly
+before scheduling retries.
