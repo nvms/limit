@@ -1,6 +1,6 @@
 {
   "name": "@prsm/limit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Redis-backed distributed rate limiting with token bucket, sliding window, and leaky bucket algorithms",
   "type": "module",
   "exports": {
@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@prsm/ms": "^1.0.1",
+    "@prsm/ms": "^2.0.0",
     "redis": "^5.1.1"
   },
   "devDependencies": {
