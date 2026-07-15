@@ -2,12 +2,13 @@ import { createClient } from 'redis'
 import { randomUUID } from 'crypto'
 import ms from '@prsm/ms'
 import { scanRecent } from './scanRecent.js'
+import { toClientOptions } from './redisOptions.js'
 
 /**
  * @typedef {Object} SlidingWindowOptions
  * @property {number} max - maximum number of requests allowed within any rolling window. Must be a positive integer.
  * @property {number|string} window - length of the rolling window, as a duration string ("1m", "30s") or milliseconds. The limit is enforced continuously over the trailing window, not reset on fixed boundaries, so there is no burst at the window edge.
- * @property {{url?: string, host?: string, port?: number, password?: string}} [redis] - node-redis connection options passed straight to createClient. Omit to connect to redis on localhost:6379.
+ * @property {{url?: string, host?: string, port?: number, password?: string}} [redis] - node-redis connection options. Provide either a url or discrete host/port/password fields; omit to connect to redis on localhost:6379.
  * @property {string} [prefix] - prefix applied to every Redis key this limiter writes (default "limit:sw:"). Use distinct prefixes to keep separate limiters from colliding on the same Redis instance.
  * @property {object} [tracer] - optional @prsm/trace tracer. When provided, each hit() call is wrapped in a span recording the key, cost, and allowed result (default none).
  */
@@ -76,7 +77,7 @@ export function slidingWindow(options) {
   if (!Number.isInteger(max) || max <= 0) throw new Error('max must be a positive integer')
   if (!Number.isFinite(window) || window <= 0) throw new Error('window must be a positive duration')
 
-  const redis = createClient(options.redis ?? {})
+  const redis = createClient(toClientOptions(options.redis))
   redis.on('error', () => {})
   const readyPromise = redis.connect()
 

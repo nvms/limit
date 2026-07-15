@@ -1,13 +1,14 @@
 import { createClient } from 'redis'
 import ms from '@prsm/ms'
 import { scanRecent } from './scanRecent.js'
+import { toClientOptions } from './redisOptions.js'
 
 /**
  * @typedef {Object} TokenBucketOptions
  * @property {number} capacity - maximum number of tokens the bucket can hold, which is also the largest burst a single key is allowed before it must wait for a refill.
  * @property {number} refillRate - number of tokens added back to the bucket each refill interval. The sustained allowed rate is refillRate per refillInterval.
  * @property {number|string} refillInterval - time between refills, as a duration string ("1s", "100ms") or milliseconds. Tokens are credited in whole-interval steps, so a request can wait up to one interval for the next refill.
- * @property {{url?: string, host?: string, port?: number, password?: string}} [redis] - node-redis connection options passed straight to createClient. Omit to connect to redis on localhost:6379.
+ * @property {{url?: string, host?: string, port?: number, password?: string}} [redis] - node-redis connection options. Provide either a url or discrete host/port/password fields; omit to connect to redis on localhost:6379.
  * @property {string} [prefix] - prefix applied to every Redis key this limiter writes (default "limit:tb:"). Use distinct prefixes to keep separate limiters from colliding on the same Redis instance.
  * @property {object} [tracer] - optional @prsm/trace tracer. When provided, each take() call is wrapped in a span recording the key, cost, and allowed result (default none).
  */
@@ -102,7 +103,7 @@ export function tokenBucket(options) {
 
   const ttl = Math.ceil(capacity / refillRate) * refillInterval * 2
 
-  const redis = createClient(options.redis ?? {})
+  const redis = createClient(toClientOptions(options.redis))
   redis.on('error', () => {})
   const readyPromise = redis.connect()
 
